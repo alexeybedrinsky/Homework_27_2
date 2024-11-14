@@ -11,8 +11,11 @@ class IsOwner(permissions.BasePermission):
         return obj.owner == request.user
 
 
-class ModeratorOrReadOnly(permissions.BasePermission):
+class IsOwnerOrModerator(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return obj.owner == request.user or request.user.groups.filter(name='moderators').exists()
+
+
+class ReadOnlyForAll(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return request.user.groups.filter(name='moderators').exists()
+        return request.method in permissions.SAFE_METHODS
