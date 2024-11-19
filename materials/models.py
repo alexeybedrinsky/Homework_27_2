@@ -22,3 +22,15 @@ class Lesson(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lessons')
 
     objects = models.Manager()
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='subscriptions')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'course']
+
+    def __str__(self):
+        return f"{self.user.email} subscribed to {self.course.title}"
