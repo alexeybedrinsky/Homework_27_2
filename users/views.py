@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, serializers
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .models import User, Payment
+from .models import User, UserPayment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -34,9 +34,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         return user
 
 
-class PaymentSerializer(serializers.ModelSerializer):
+class UserPaymentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Payment
+        model = UserPayment
         fields = '__all__'
 
 
@@ -63,9 +63,9 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
         return Response(serializer.data)
 
 
-class PaymentListView(generics.ListAPIView):
-    queryset = Payment.objects.all()
-    serializer_class = PaymentSerializer
+class UserPaymentListView(generics.ListAPIView):
+    queryset = UserPayment.objects.all()
+    serializer_class = UserPaymentSerializer
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
