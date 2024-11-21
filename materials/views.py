@@ -8,6 +8,10 @@ from .permissions import IsModerator, IsOwner, ReadOnlyForAll
 from .paginators import MaterialsPaginator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.utils import timezone
+from .models import Course
+from .serializers import CourseSerializer
+from .tasks import send_update_notification
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -55,7 +59,17 @@ class CourseViewSet(viewsets.ModelViewSet):
         responses={200: CourseSerializer()}
     )
     def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+        instance = self.get_object()
+        four_hours_ago = timezone.now() - timezone.timedelta(hours=4)
+
+        response = super().update(request, *args, **kwargs)
+
+        if instance.last_updated <= four_hours_ago:
+            subscribers = instance.subscribers.all()
+            for subscriber in subscribers:
+                send_update_notification.delay(instance.id, subscriber.email)
+
+        return response
 
     @swagger_auto_schema(
         operation_description="Частично обновить курс",
