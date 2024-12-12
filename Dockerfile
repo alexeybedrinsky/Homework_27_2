@@ -1,17 +1,20 @@
-# Используем официальный образ Python
-FROM python:3.9
 
-# Устанавливаем рабочую директорию в контейнере
+# Use an official Python runtime as a parent image
+FROM python:3.10
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set work directory
 WORKDIR /app
 
-# Копируем файлы зависимостей
-COPY requirements.txt .
+# Install dependencies
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
-# Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy project
+COPY . /app/
 
-# Копируем остальные файлы проекта
-COPY . .
-
-# Запускаем команду для запуска сервера
+# Run the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
